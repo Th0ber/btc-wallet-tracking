@@ -1,6 +1,6 @@
-<h1>Site para você acompanhar sua carteira de bitcoin</h1>
+<h1>Website where you can track your bitcoin wallet</h1>
 
-<p>Site feito em html, css e javascript</p>
-<p>Todos os dados das carteiras buscadas são pegos de requisições para api's externas, apartir do endereço onchain da carteira fornecido pelo usuário</p>
-<p>Aviso! Ao colocar seu endereço bitcoin onchain nesse site você está expondo o endereço da sua carteira aos nodes terceiros que estão sendo requisitados, confira as requisições no <code>index.html</code> na parte de <code><script></code></p>
-<p>Veja o projeto em: https://btcwllt.netlify.app/</p>
+<p>Website built using HTML, CSS, and JavaScript</p>
+<p>All data from the retrieved wallets is obtained from requests to external APIs, based on the on-chain wallet address provided by the user</p>
+<p>Warning! By entering your on-chain bitcoin address on this site, you are exposing your wallet address to the third-party nodes that are being requested. Check the requests at <code>index.html</code> on the part of <code><script></code></p>
+<p>Check the project at: https://btcwllt.netlify.app/</p>
