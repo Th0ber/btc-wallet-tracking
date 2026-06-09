@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carteira de Bitcoin</title>
+  <title>Bitcoin Wallet Tracker</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,27 +21,27 @@
 
 <body>
   <div class="container">
-    <h1 class="mb-4">Carteira de Bitcoin</h1>
-    
+    <h1 class="mb-4">Bitcoin Wallet Tracker</h1>
+
     <!-- Card do Gráfico de Acumulação -->
     <div class="card mb-4">
-      <div class="card-header">Gráfico de Acumulação de BTC</div>
+      <div class="card-header">BTC Accumulation Chart</div>
       <div class="card-body">
-        <p id="summary" class="mb-3">Nenhuma Carteira Encontrada, insira um endereço válido por favor..</p>
+        <p id="summary" class="mb-3">No Wallet Found, please insert a valid address.</p>
         <canvas id="dcaChart" height="100"></canvas>
       </div>
     </div>
 
     <!-- Seção de Transações Recentes -->
-    <h2 class="mt-4">Transações Recentes</h2>
+    <h2 class="mt-4">Recent Transactions</h2>
     <div class="table-responsive">
       <table id="txTable" class="table table-striped table-hover rounded"
         style="border-collapse: separate; border-spacing: 0;">
         <thead class="table-light">
           <tr>
-            <th>Data</th>
-            <th>Hash da Transação</th>
-            <th>Valor Movimentado (BTC)</th>
+            <th>Date</th>
+            <th>Transaction Hash</th>
+            <th>Amount Transferred (BTC)</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -52,24 +52,25 @@
     <div class="container mt-4">
       <div class="mb-3">
         <label for="walletInput" class="form-label">
-          Endereço da Carteira BTC
+          BTC Wallet Address
         </label>
-        <input type="text" id="walletInput" class="form-control" placeholder="Insira o endereço onchain da carteira" />
+        <input type="text" id="walletInput" class="form-control" placeholder="Enter your BTC wallet address" />
       </div>
       <button type="button" class="btn btn-dark" onclick="enviar()">
-        Ver Carteira
+        View Wallet
       </button>
     </div>
 
-    <h3 class=" fs-6" style="margin-top: 50px;">Aviso! Ao colocar seu endereço bitcoin onchain nesse site você está expondo o endereço da sua carteira aos nodes terceiros que estão sendo requisitados, veja mais no repositório do projeto ⬇️</h3>
-    
+    <h3 class=" fs-6" style="margin-top: 50px;">Warning! By entering your Bitcoin onchain address on this site, you are exposing your wallet address to third-party nodes that are being requested. See more in the project repository ⬇️</h3>
+
     <!-- Ver repositório do projeto no GitHub -->
     <div style="margin-top: 25px; text-align: center;">
       <a href="https://github.com/Th0ber/btc-wallet-tracking" target="_blank">
         <i class="bi bi-github" style="font-size: 48px; color: #181717;"></i>
       </a>
-      <p style="margin-top: 5px; font-size: 16px;">Confira o repositório do projeto</p>
+      <p style="margin-top: 5px; font-size: 16px;">Check out the project repository</p>
     </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
