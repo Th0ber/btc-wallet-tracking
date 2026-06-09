@@ -48,7 +48,7 @@
       </table>
     </div>
 
-    <!-- Seção para inserir o endereço da carteira -->
+    <!-- Section to enter the wallet address -->
     <div class="container mt-4">
       <div class="mb-3">
         <label for="walletInput" class="form-label">
@@ -56,14 +56,14 @@
         </label>
         <input type="text" id="walletInput" class="form-control" placeholder="Enter your BTC wallet address" />
       </div>
-      <button type="button" class="btn btn-dark" onclick="enviar()">
+      <button type="button" class="btn btn-dark" onclick="submitWallet()">
         View Wallet
       </button>
     </div>
 
     <h3 class=" fs-6" style="margin-top: 50px;">Warning! By entering your Bitcoin onchain address on this site, you are exposing your wallet address to third-party nodes that are being requested. See more in the project repository ⬇️</h3>
 
-    <!-- Ver repositório do projeto no GitHub -->
+    <!-- View the project repository on GitHub -->
     <div style="margin-top: 25px; text-align: center;">
       <a href="https://github.com/Th0ber/btc-wallet-tracking" target="_blank">
         <i class="bi bi-github" style="font-size: 48px; color: #181717;"></i>
@@ -76,28 +76,28 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Variável global para armazenar o endereço da carteira
+    // Global variable to store the wallet address
     let walletAddress = "";
-    // Variável para armazenar a instância do Chart.js
+    // Variable to store the Chart.js instance
     let chartInstance = null;
 
-    // Função acionada ao clicar no botão "Ver Carteira"
-    function enviar() {
+    // Function triggered when the "View Wallet" button is clicked
+    function submitWallet() {
       walletAddress = document.getElementById("walletInput").value.trim();
       if (!walletAddress) {
-        alert("Por favor, informe um endereço válido da carteira.");
+        alert("Please provide a valid wallet address.");
         return;
       }
-      // Inicia toda a aplicação com o endereço informado
+      // Starts the application with the provided address
       init();
     }
 
-    // Constrói a URL para buscar transações (endpoint /txs)
+    // Builds the URL to fetch transactions (endpoint /txs)
     function getMempoolUrl() {
       return `https://mempool.space/api/address/${walletAddress}/txs`;
     }
 
-    // Formata data para o padrão dd-mm-yyyy (usado nas ordens)
+    // Formats date to dd-mm-yyyy pattern (used in orders)
     function formatDateForApi(date) {
       const d = date.getDate().toString().padStart(2, "0");
       const m = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -105,10 +105,10 @@
       return `${d}-${m}-${y}`;
     }
 
-    // Cache para preços históricos (BRL)
+    // Cache for historical prices (BRL)
     const historicalPriceCache = {};
 
-    // Obtém o preço histórico do Bitcoin (em BRL) para uma data específica
+    // Fetches the historical Bitcoin price (in BRL) for a specific date
     async function getHistoricalPrice(dateStr) {
       if (historicalPriceCache[dateStr]) return historicalPriceCache[dateStr];
 
@@ -119,15 +119,15 @@
         return cached;
       }
 
-      // Converte a data para timestamp (fim do dia UTC)
-      const [dia, mes, ano] = dateStr.split("-");
-      const dateObj = new Date(`${ano}-${mes}-${dia}T23:59:59Z`);
+      // Converts the date to a timestamp (end of day UTC)
+      const [day, month, year] = dateStr.split("-");
+      const dateObj = new Date(`${year}-${month}-${day}T23:59:59Z`);
       const timestamp = Math.floor(dateObj.getTime() / 1000);
       const url = `https://min-api.cryptocompare.com/data/pricehistorical?fsym=BTC&tsyms=BRL&ts=${timestamp}`;
       try {
         const response = await fetch(url);
         if (!response.ok)
-          throw new Error("Erro ao buscar preço histórico do Bitcoin");
+          throw new Error("Error fetching historical Bitcoin price");
         const data = await response.json();
         if (data && data.BTC && data.BTC.BRL) {
           const priceBrl = parseFloat(data.BTC.BRL);
@@ -135,20 +135,20 @@
           localStorage.setItem(`historicalPrice-${dateStr}`, priceBrl.toString());
           return priceBrl;
         } else {
-          throw new Error("Dados históricos vazios");
+          throw new Error("Empty historical data");
         }
       } catch (error) {
-        console.error(`Erro na data ${dateStr}: ${error.message}`);
+        console.error(`Error on date ${dateStr}: ${error.message}`);
         return 0;
       }
     }
 
-    // Busca as transações da carteira (usando endpoint /txs)
+    // Fetches wallet transactions (using /txs endpoint)
     async function fetchTransactions() {
       try {
         const response = await fetch(getMempoolUrl());
         if (!response.ok)
-          throw new Error("Erro ao buscar transações da carteira");
+          throw new Error("Error fetching wallet transactions");
         return await response.json();
       } catch (error) {
         console.error(error);
@@ -156,10 +156,10 @@
       }
     }
 
-    // Calcula o histórico do saldo confirmado (on‑chain) do endereço
+    // Computes the confirmed on-chain balance history for the address
     async function computeHistoricalConfirmedBalance() {
       const transactions = await fetchTransactions();
-      // Ordena as transações pela data de confirmação (block_time crescente)
+      // Sorts transactions by confirmation date (block_time ascending)
       transactions.sort((a, b) => a.status.block_time - b.status.block_time);
       let balance = 0;
       let series = [];
@@ -170,7 +170,7 @@
 
           let deposit = 0;
           let spending = 0;
-          // Soma as entradas destinadas ao endereço
+          // Adds outputs destined for the address
           if (tx.vout && Array.isArray(tx.vout)) {
             tx.vout.forEach((vout) => {
               if (vout.scriptpubkey_address === walletAddress) {
@@ -178,7 +178,7 @@
               }
             });
           }
-          // Subtrai as saídas que saíram do endereço
+          // Subtracts outputs that left the address
           if (tx.vin && Array.isArray(tx.vin)) {
             tx.vin.forEach((vin) => {
               if (vin.prevout && vin.prevout.scriptpubkey_address === walletAddress) {
@@ -197,15 +197,15 @@
       return series;
     }
 
-    // Busca o saldo CONFIRMADO atual da carteira
+    // Fetches the current confirmed wallet balance
     async function fetchConfirmedBalance() {
       try {
         const balanceUrl = `https://mempool.space/api/address/${walletAddress}`;
         const response = await fetch(balanceUrl);
         if (!response.ok)
-          throw new Error("Erro ao buscar saldo confirmado da carteira");
+          throw new Error("Error fetching confirmed wallet balance");
         const data = await response.json();
-        // Saldo confirmado = funded_txo_sum - spent_txo_sum (em satoshis convertidos para BTC)
+        // Confirmed balance = funded_txo_sum - spent_txo_sum (in satoshis converted to BTC)
         const confirmedSatoshis =
           data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum;
         return confirmedSatoshis / 1e8;
@@ -215,7 +215,7 @@
       }
     }
 
-    // Processa as transações para extrair as ordens de compra DCA (para cálculo do custo médio)
+    // Processes transactions to extract DCA purchase orders (for average cost calculation)
     async function processOrders() {
       const transactions = await fetchTransactions();
       let orders = [];
@@ -240,7 +240,7 @@
         }
       });
 
-      // Obtém os preços históricos (BRL) para cada data única
+      // Gets historical prices (BRL) for each unique date
       const uniqueDates = [...new Set(orders.map((order) => order.apiDate))];
       const pricePromises = uniqueDates.map(async (dateStr) => {
         const price = await getHistoricalPrice(dateStr);
@@ -260,18 +260,18 @@
       return orders;
     }
 
-    // Obtém o preço atual do Bitcoin em BRL (CryptoCompare)
+    // Fetches the current Bitcoin price in BRL (CryptoCompare)
     async function getCurrentBitcoinPriceInBRL() {
       const url = "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=BRL";
       try {
         const response = await fetch(url);
         if (!response.ok)
-          throw new Error("Erro ao buscar preço atual do Bitcoin");
+          throw new Error("Error fetching current Bitcoin price");
         const data = await response.json();
         if (data && data.BRL) {
           return parseFloat(data.BRL);
         } else {
-          throw new Error("Dados atuais vazios");
+          throw new Error("Empty current data");
         }
       } catch (error) {
         console.error(error);
@@ -279,9 +279,9 @@
       }
     }
 
-    // Renderiza o gráfico de acumulação usando Chart.js
+    // Renders the accumulation chart using Chart.js
     function renderChart(cumulativeDates, cumulativeBTC) {
-      // Se já existir um gráfico, destrói-o para evitar duplicidade
+      // If a chart already exists, destroy it to avoid duplicates
       if (chartInstance !== null) {
         chartInstance.destroy();
       }
@@ -292,7 +292,7 @@
           labels: cumulativeDates,
           datasets: [
             {
-              label: "BTC Acumulado",
+              label: "Accumulated BTC",
               data: cumulativeBTC,
               backgroundColor: "rgba(54, 162, 235, 0.2)",
               borderColor: "rgba(54, 162, 235, 1)",
@@ -305,27 +305,27 @@
         options: {
           responsive: true,
           scales: {
-            x: { title: { display: true, text: "Data" } },
-            y: { title: { display: true, text: "Saldo BTC" } },
+            x: { title: { display: true, text: "Date" } },
+            y: { title: { display: true, text: "BTC Balance" } },
           },
         },
       });
     }
 
-    // Renderiza a tabela de transações recentes conforme o modelo enviado
+    // Renders the recent transactions table using the provided model
     async function renderTxTable() {
       try {
         const res = await fetch(
           `https://mempool.space/api/address/${walletAddress}/txs/chain`
         );
-        if (!res.ok) throw new Error(`Erro TXs: ${res.status}`);
+        if (!res.ok) throw new Error(`TX error: ${res.status}`);
         const txs = await res.json();
         const tbody = document.querySelector("#txTable tbody");
         tbody.innerHTML = "";
-        // Exibe as 10 transações mais recentes
+        // Shows the 10 most recent transactions
         txs.slice(0, 10).forEach((tx) => {
           const timeMs = tx.status.block_time * 1000;
-          // Soma os valores das saídas para calcular o valor movimentado
+          // Sums output values to calculate the moved amount
           const valueSat = tx.vout.reduce((sum, o) => sum + o.value, 0);
           const row = document.createElement("tr");
           row.innerHTML = `
@@ -345,13 +345,13 @@
           tbody.appendChild(row);
         });
       } catch (error) {
-        console.error("Erro ao renderizar tabela de transações:", error);
+        console.error("Error rendering transaction table:", error);
       }
     }
 
-    // Função principal que integra todas as etapas
+    // Main function that ties all steps together
     async function init() {
-      // Processa as ordens para calcular o custo médio por BTC
+      // Processes orders to calculate average cost per BTC
       const orders = await processOrders();
       let avgCost = 0;
       if (orders.length > 0) {
@@ -364,24 +364,24 @@
         avgCost = totalFiat / totalBTCFromOrders;
       }
 
-      // Calcula a série histórica do saldo confirmado (on‑chain)
+      // Computes the historical confirmed balance series (on-chain)
       const historicalBalanceSeries = await computeHistoricalConfirmedBalance();
       const cumulativeDates = historicalBalanceSeries.map((item) => item.date);
       const confirmedBalances = historicalBalanceSeries.map((item) => item.balance);
 
-      // Busca o saldo confirmado atual e converte para BRL
+      // Fetches the current confirmed balance and converts to BRL
       const confirmedBTC = await fetchConfirmedBalance();
       const currentBTCPrice = await getCurrentBitcoinPriceInBRL();
       const totalBrlValue = confirmedBTC * currentBTCPrice;
 
-      // Atualiza o elemento "summary" com os dados resumidos (incluindo custo médio)
+      // Updates the "summary" element with the summarized data (including average cost)
       document.getElementById("summary").innerHTML = `
-          <strong>Total BTC Acumulado (Saldo Confirmado):</strong> ${confirmedBTC.toFixed(8)} BTC<br>
-          <strong>Custo Médio por BTC:</strong> R$ ${avgCost.toFixed(2)}<br>
-          <strong>Valor Atual do Saldo:</strong> R$ ${totalBrlValue.toFixed(2)}
+          <strong>Total BTC Accumulated (Confirmed Balance):</strong> ${confirmedBTC.toFixed(8)} BTC<br>
+          <strong>Average Cost per BTC:</strong> R$ ${avgCost.toFixed(2)}<br>
+          <strong>Current Balance Value:</strong> R$ ${totalBrlValue.toFixed(2)}
         `;
 
-      // Renderiza o gráfico e a tabela de transações
+      // Renders the chart and transaction table
       renderChart(cumulativeDates, confirmedBalances);
       renderTxTable();
     }
